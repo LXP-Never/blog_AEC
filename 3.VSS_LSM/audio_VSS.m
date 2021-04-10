@@ -75,6 +75,3 @@ hold on;
 plot(10*log10(mean(err_VSS)), '-r');
 title('Comparison of LMS and VSS LMS Algorithms'); xlabel('iterations');ylabel('MSE(dB)');legend('LMS Algorithm','VSS LMS Algorithm')
 grid on;
-
-
-

@@ -1,16 +1,13 @@
 % LMS和变步长LMS(VSS LMS)算法的Matlab代码
 % Code is written by: Ray Dwaipayan
 % Homepage: https://sites.google.com/view/rayd/home
-clc;
-clear all;
-close all;
-% 所需系统(Desired System) (link: http://www.firsuite.net/FIR/AKSOY08_NORCHIP_G40)
+clc;clear all;close all;
+
 % 滤波器系数
 sys_desired = [86 -294 -287 -262 -120 140 438 641 613 276 -325 -1009 -1487 ...
     -1451 -680 856 2954 5206 7106 8192 8192 7106 5206 2954 856 -680 -1451 ...
     -1487 -1009 -325 276 613 641 438 140 -120 -262 -287 -294 86] * 2^(-15);
 
-% 注意，在itr=500时获得上传的数字
 for itr=1:100
    %% 定义输入和初始模型系数
     x=randn(1,60000);                                   % 输入
@@ -18,16 +15,15 @@ for itr=1:100
     model_coeff_vss = zeros(1,length(sys_desired));     % VSS-LMS算法模型(权重)
     model_tap = zeros(1,length(sys_desired));           % 模型抽头初始值
     %% 增加40分贝噪声地板的系统输出
-    noise_floor = 40;
+    noise_snr = 40;
     % filter 使用由分子和分母系数 sys_desired 和 1 定义的有理传递函数 对输入数据 x 进行滤波。
-    % awgn 给信号添加20dB的高斯白噪声
-    sys_opt = filter(sys_desired,1,x)+awgn(x,noise_floor)-x;
+    % awgn 给信号添加40dB的高斯白噪声
+    sys_opt = filter(sys_desired,1,x)+awgn(x,noise_snr)-x;
     %% 学习率的上下界
-    % 以上信息可从论文中获取，这些值是在上述论文中定义的
+    % 以上信息可从论文中获取，这些值是在下述论文中定义的
     % R. H. Kwong and E. W. Johnston, "A variable step size LMS algorithm," in IEEE Transactions on Signal Processing, vol. 40, no. 7, pp. 1633-1642, July 1992.
-    % doi: 10.1109/78.143435
     
-    input_var = var(x);     % 输入方差
+    input_var = var(x);     % 输入的方差
     % 如果mu_max和mu_min之间的差异不够大，LMS和VSS LMS算法的误差曲线都是相同的
     mu_max = 1/(input_var*length(sys_desired)); % 上界=1/(filter_length * input variance)
     mu_LMS = 0.0004;        % LMS算法的学习率
